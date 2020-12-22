@@ -143,100 +143,112 @@ func (l Linter) Run(fset *token.FileSet, nodes ...ast.Node) ([]Issue, error) {
 	var issues []Issue
 
 	for _, node := range nodes {
-		if file, ok := node.(*ast.File); ok {
-			for _, c := range file.Comments {
-				for _, comment := range c.List {
-					if !commentPattern.MatchString(comment.Text) {
-						continue
-					}
+		file, ok := node.(*ast.File)
+		if !ok {
+			continue
+		}
 
-					// check for a space between the "//" and the directive
-					leadingSpaceMatches := leadingSpacePattern.FindStringSubmatch(comment.Text)
-
-					var leadingSpace string
-					if len(leadingSpaceMatches) > 0 {
-						leadingSpace = leadingSpaceMatches[1]
-					}
-
-					directiveWithOptionalLeadingSpace := comment.Text
-					if len(leadingSpace) > 0 {
-						split := strings.Split(strings.SplitN(comment.Text, ":", 2)[0], "//")
-						directiveWithOptionalLeadingSpace = "// " + strings.TrimSpace(split[1])
-					}
-
-					base := BaseIssue{
-						fullDirective:                     comment.Text,
-						directiveWithOptionalLeadingSpace: directiveWithOptionalLeadingSpace,
-						position:                          fset.Position(comment.Pos()),
-					}
-
-					// check for, report and eliminate leading spaces so we can check for other issues
-					if len(leadingSpace) > 1 {
-						issues = append(issues, ExtraLeadingSpace{BaseIssue: base})
-					}
-
-					if (l.needs&NeedsMachineOnly) != 0 && len(leadingSpace) > 0 {
-						issues = append(issues, NotMachine{BaseIssue: base})
-					}
-
-					fullMatches := fullDirectivePattern.FindStringSubmatch(comment.Text)
-					if len(fullMatches) == 0 {
-						issues = append(issues, ParseError{BaseIssue: base})
-						continue
-					}
-
-					lintersText, explanation := fullMatches[1], fullMatches[2]
-					var linters []string
-					if len(lintersText) > 0 {
-						lls := strings.Split(lintersText[1:], ",")
-						linters = make([]string, 0, len(lls))
-						for _, ll := range lls {
-							ll = strings.TrimSpace(ll)
-							if ll != "" {
-								linters = append(linters, ll)
-							}
-						}
-					}
-
-					if (l.needs & NeedsSpecific) != 0 {
-						if len(linters) == 0 {
-							issues = append(issues, NotSpecific{BaseIssue: base})
-						}
-					}
-
-					// when detecting unused directives, we send all the directives through and filter them out in the nolint processor
-					if (l.needs & NeedsUnused) != 0 {
-						if len(linters) == 0 {
-							issues = append(issues, UnusedCandidate{BaseIssue: base})
-						} else {
-							for _, linter := range linters {
-								issues = append(issues, UnusedCandidate{BaseIssue: base, ExpectedLinter: linter})
-							}
-						}
-					}
-
-					if (l.needs&NeedsExplanation) != 0 && (explanation == "" || strings.TrimSpace(explanation) == "//") {
-						needsExplanation := len(linters) == 0 // if no linters are mentioned, we must have explanation
-						// otherwise, check if we are excluding all of the mentioned linters
-						for _, ll := range linters {
-							if !l.excludeByLinter[ll] { // if a linter does require explanation
-								needsExplanation = true
-								break
-							}
-						}
-
-						if needsExplanation {
-							fullDirectiveWithoutExplanation := trailingBlankExplanation.ReplaceAllString(comment.Text, "")
-							issues = append(issues, NoExplanation{
-								BaseIssue:                       base,
-								fullDirectiveWithoutExplanation: fullDirectiveWithoutExplanation,
-							})
-						}
-					}
-				}
-			}
+		for _, c := range file.Comments {
+			issues = append(issues, l.commentAnalysis(fset, c)...)
 		}
 	}
 
 	return issues, nil
+}
+
+func (l Linter) commentAnalysis(fset *token.FileSet, c *ast.CommentGroup) []Issue {
+	var issues []Issue
+
+	for _, comment := range c.List {
+		if !commentPattern.MatchString(comment.Text) {
+			continue
+		}
+
+		// check for a space between the "//" and the directive
+		leadingSpaceMatches := leadingSpacePattern.FindStringSubmatch(comment.Text)
+
+		var leadingSpace string
+		if len(leadingSpaceMatches) > 0 {
+			leadingSpace = leadingSpaceMatches[1]
+		}
+
+		parts := strings.SplitN(strings.SplitN(comment.Text, "//", 3)[1], ":", 2)
+
+		directiveWithOptionalLeadingSpace := comment.Text
+		if len(leadingSpace) > 0 {
+			directiveWithOptionalLeadingSpace = "// " + strings.TrimSpace(parts[0])
+		}
+
+		base := BaseIssue{
+			fullDirective:                     comment.Text,
+			directiveWithOptionalLeadingSpace: directiveWithOptionalLeadingSpace,
+			position:                          fset.Position(comment.Pos()),
+		}
+
+		// check for, report and eliminate leading spaces so we can check for other issues
+		if len(leadingSpace) > 1 {
+			issues = append(issues, ExtraLeadingSpace{BaseIssue: base})
+		}
+
+		if (l.needs&NeedsMachineOnly) != 0 && len(leadingSpace) > 0 {
+			issues = append(issues, NotMachine{BaseIssue: base})
+		}
+
+		fullMatches := fullDirectivePattern.FindStringSubmatch(comment.Text)
+		if len(fullMatches) == 0 {
+			issues = append(issues, ParseError{BaseIssue: base})
+			continue
+		}
+
+		lintersText, explanation := fullMatches[1], fullMatches[2]
+		var linters []string
+		if len(lintersText) > 0 {
+			lls := strings.Split(lintersText[1:], ",")
+			linters = make([]string, 0, len(lls))
+			for _, ll := range lls {
+				ll = strings.TrimSpace(ll)
+				if ll != "" {
+					linters = append(linters, ll)
+				}
+			}
+		}
+
+		if (l.needs & NeedsSpecific) != 0 {
+			if len(linters) == 0 {
+				issues = append(issues, NotSpecific{BaseIssue: base})
+			}
+		}
+
+		// when detecting unused directives, we send all the directives through and filter them out in the nolint processor
+		if (l.needs & NeedsUnused) != 0 {
+			if len(linters) == 0 {
+				issues = append(issues, UnusedCandidate{BaseIssue: base})
+			} else {
+				for _, linter := range linters {
+					issues = append(issues, UnusedCandidate{BaseIssue: base, ExpectedLinter: linter})
+				}
+			}
+		}
+
+		if (l.needs&NeedsExplanation) != 0 && (explanation == "" || strings.TrimSpace(explanation) == "//") {
+			needsExplanation := len(linters) == 0 // if no linters are mentioned, we must have explanation
+			// otherwise, check if we are excluding all of the mentioned linters
+			for _, ll := range linters {
+				if !l.excludeByLinter[ll] { // if a linter does require explanation
+					needsExplanation = true
+					break
+				}
+			}
+
+			if needsExplanation {
+				fullDirectiveWithoutExplanation := trailingBlankExplanation.ReplaceAllString(comment.Text, "")
+				issues = append(issues, NoExplanation{
+					BaseIssue:                       base,
+					fullDirectiveWithoutExplanation: fullDirectiveWithoutExplanation,
+				})
+			}
+		}
+	}
+
+	return issues
 }
