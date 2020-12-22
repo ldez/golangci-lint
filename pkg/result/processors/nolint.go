@@ -252,6 +252,9 @@ func (p *Nolint) extractInlineRangeFromComment(text string, g ast.Node, fset *to
 	linterItems := strings.Split(strings.TrimPrefix(text, "nolint:"), ",")
 	for _, linter := range linterItems {
 		linterName := strings.ToLower(strings.TrimSpace(linter))
+		if linterName == golinters.NolintlintName {
+			continue
+		}
 
 		lcs := p.dbManager.GetLinterConfigs(linterName)
 		if lcs == nil {

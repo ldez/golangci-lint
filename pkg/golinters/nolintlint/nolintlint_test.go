@@ -55,6 +55,36 @@ func foo() {}`,
 			},
 		},
 		{
+			desc:  "when ignore multi-line",
+			needs: NeedsExplanation,
+			contents: `
+package bar
+
+//nolint:nolintlint // inception
+//nolint
+func foo() {}`,
+		},
+		{
+			desc:  "when ignore one line",
+			needs: NeedsExplanation,
+			contents: `
+package bar
+
+//nolint:nolintlint
+func foo() {}`,
+		},
+		{
+			desc:     "when no explanation is needed for a specific linter",
+			needs:    NeedsExplanation,
+			excludes: []string{"lll"},
+			contents: `
+package bar
+
+func foo() {
+	thisIsAReallyLongLine() //nolint:lll
+}`,
+		},
+		{
 			desc:     "when no explanation is needed for a specific linter",
 			needs:    NeedsExplanation,
 			excludes: []string{"lll"},
@@ -138,7 +168,7 @@ func foo() {
 	for _, test := range testCases {
 		test := test
 		t.Run(test.desc, func(t *testing.T) {
-			t.Parallel()
+			// t.Parallel()
 
 			linter, _ := NewLinter(test.needs, test.excludes)
 

@@ -174,6 +174,14 @@ func (l Linter) commentAnalysis(fset *token.FileSet, c *ast.CommentGroup) []Issu
 
 		parts := strings.SplitN(strings.SplitN(comment.Text, "//", 3)[1], ":", 2)
 
+		if len(parts) > 1 {
+			for _, s := range strings.Split(parts[1], ",") {
+				if strings.TrimSpace(s) == "nolintlint" {
+					return nil
+				}
+			}
+		}
+
 		directiveWithOptionalLeadingSpace := comment.Text
 		if len(leadingSpace) > 0 {
 			directiveWithOptionalLeadingSpace = "// " + strings.TrimSpace(parts[0])
