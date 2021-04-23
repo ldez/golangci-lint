@@ -279,6 +279,7 @@ type LintersSettings struct {
 	GoModDirectives  GoModDirectivesSettings
 	Promlinter       PromlinterSettings
 	Tagliatelle      TagliatelleSettings
+	ExportLoopRef    ExportLoopRefSettings
 
 	Custom map[string]CustomLinterSettings
 }
@@ -485,6 +486,10 @@ type TagliatelleSettings struct {
 		Rules        map[string]string
 		UseFieldName bool `mapstructure:"use-field-name"`
 	}
+}
+
+type ExportLoopRefSettings struct {
+	LooppointerMode bool `mapstructure:"looppointer-mode"`
 }
 
 var defaultLintersSettings = LintersSettings{

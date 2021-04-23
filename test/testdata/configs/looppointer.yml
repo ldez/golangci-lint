@@ -1,0 +1,3 @@
+linters-settings:
+  exportloopref:
+    looppointer-mode: true

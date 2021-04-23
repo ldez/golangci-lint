@@ -3,7 +3,7 @@ package testdata
 
 import "fmt"
 
-func dummyFunction() {
+func exportlooprefFunction() {
 	var array [4]*int
 	var slice []*int
 	var ref *int
@@ -11,7 +11,7 @@ func dummyFunction() {
 
 	fmt.Println("loop expecting 10, 11, 12, 13")
 	for i, p := range []int{10, 11, 12, 13} {
-		printp(&p)
+		exportlooprefPrintp(&p)
 		slice = append(slice, &p) // ERROR "exporting a pointer for the loop variable p"
 		array[i] = &p             // ERROR "exporting a pointer for the loop variable p"
 		if i%2 == 0 {
@@ -31,16 +31,16 @@ func dummyFunction() {
 
 	fmt.Println(`slice expecting "10, 11, 12, 13" but "13, 13, 13, 13"`)
 	for _, p := range slice {
-		printp(p)
+		exportlooprefPrintp(p)
 	}
 	fmt.Println(`array expecting "10, 11, 12, 13" but "13, 13, 13, 13"`)
 	for _, p := range array {
-		printp(p)
+		exportlooprefPrintp(p)
 	}
 	fmt.Println(`captured value expecting "12" but "13"`)
-	printp(ref)
+	exportlooprefPrintp(ref)
 }
 
-func printp(p *int) {
+func exportlooprefPrintp(p *int) {
 	fmt.Println(*p)
 }

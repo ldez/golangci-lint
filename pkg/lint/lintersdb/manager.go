@@ -112,6 +112,7 @@ func (m Manager) GetAllSupportedLinterConfigs() []*linter.Config {
 	var importAsCfg *config.ImportAsSettings
 	var goModDirectivesCfg *config.GoModDirectivesSettings
 	var tagliatelleCfg *config.TagliatelleSettings
+	var exportLoopRefCfg *config.ExportLoopRefSettings
 
 	if m.cfg != nil {
 		govetCfg = &m.cfg.LintersSettings.Govet
@@ -127,6 +128,7 @@ func (m Manager) GetAllSupportedLinterConfigs() []*linter.Config {
 		importAsCfg = &m.cfg.LintersSettings.ImportAs
 		goModDirectivesCfg = &m.cfg.LintersSettings.GoModDirectives
 		tagliatelleCfg = &m.cfg.LintersSettings.Tagliatelle
+		exportLoopRefCfg = &m.cfg.LintersSettings.ExportLoopRef
 	}
 
 	const megacheckName = "megacheck"
@@ -382,7 +384,7 @@ func (m Manager) GetAllSupportedLinterConfigs() []*linter.Config {
 			WithSince("v1.25.0").
 			WithPresets(linter.PresetComplexity).
 			WithURL("https://github.com/nakabonne/nestif"),
-		linter.NewConfig(golinters.NewExportLoopRef()).
+		linter.NewConfig(golinters.NewExportLoopRef(exportLoopRefCfg)).
 			WithSince("v1.28.0").
 			WithPresets(linter.PresetBugs).
 			WithLoadForGoAnalysis().
