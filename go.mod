@@ -72,7 +72,7 @@ require (
 	github.com/ryancurrah/gomodguard v1.2.3
 	github.com/ryanrolds/sqlclosecheck v0.3.0
 	github.com/sanposhiho/wastedassign/v2 v2.0.6
-	github.com/securego/gosec/v2 v2.11.0
+	github.com/securego/gosec/v2 v2.12.0
 	github.com/shazow/go-diff v0.0.0-20160112020656-b6b7b6733b8c
 	github.com/shirou/gopsutil/v3 v3.22.5
 	github.com/sirupsen/logrus v1.8.1
@@ -85,7 +85,7 @@ require (
 	github.com/spf13/viper v1.12.0
 	github.com/ssgreg/nlreturn/v2 v2.2.1
 	github.com/stbenjam/no-sprintf-host-port v0.1.1
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.7.2
 	github.com/sylvia7788/contextcheck v1.0.4
 	github.com/tdakkota/asciicheck v0.1.1
 	github.com/tetafro/godot v1.4.11
@@ -99,7 +99,7 @@ require (
 	github.com/yagipy/maintidx v1.0.0
 	github.com/yeya24/promlinter v0.2.0
 	gitlab.com/bosi/decorder v0.2.1
-	golang.org/x/tools v0.1.11-0.20220518213611-904e24e9fcf9
+	golang.org/x/tools v0.1.11
 	gopkg.in/yaml.v3 v3.0.1
 	honnef.co/go/tools v0.3.2
 	mvdan.cc/gofumpt v0.3.1
