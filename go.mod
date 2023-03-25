@@ -11,7 +11,7 @@ require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/Djarvur/go-err113 v0.0.0-20210108212216-aea10b59be24
 	github.com/GaijinEntertainment/go-exhaustruct/v2 v2.3.0
-	github.com/OpenPeeDeeP/depguard v1.1.1
+	github.com/OpenPeeDeeP/depguard/v2 v2.0.0
 	github.com/alexkohler/prealloc v1.0.0
 	github.com/alingse/asasalint v0.0.11
 	github.com/ashanbrown/forbidigo v1.5.1
@@ -70,6 +70,7 @@ require (
 	github.com/mgechev/revive v1.3.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/go-ps v1.0.0
+	github.com/mitchellh/hashstructure v1.1.0
 	github.com/moricho/tparallel v0.3.1
 	github.com/nakabonne/nestif v0.3.1
 	github.com/nishanths/exhaustive v0.9.5
