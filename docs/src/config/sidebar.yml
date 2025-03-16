@@ -12,6 +12,8 @@
       link: "/welcome/integrations/"
     - label: "FAQ"
       link: "/welcome/faq/"
+    - label: "Documentation v2"
+      link: "https://golangci-lint.run"
 - label: Usage
   items:
     - label: "Configuration"

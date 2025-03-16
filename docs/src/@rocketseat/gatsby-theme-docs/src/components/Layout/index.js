@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 
 import TableOfContents from '../Docs/TOC';
 import Sidebar from '../Sidebar';
 import Header from '../Header';
-import { Wrapper, Main, Title, Children } from './styles';
+import {Children, Main, Title, WarnBanner, Wrapper} from './styles';
 
 export default function Layout({
   children,
@@ -22,6 +22,7 @@ export default function Layout({
 
   return (
     <>
+      <WarnBanner>⚠️ You are viewing the documentation for an earlier version (v1) of golangci-lint ⚠️</WarnBanner>
       <Sidebar isMenuOpen={isMenuOpen} />
       <Header handleMenuOpen={handleMenuOpen} isMenuOpen={isMenuOpen} />
       <Wrapper isMenuOpen={isMenuOpen}>

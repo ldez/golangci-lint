@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { css } from '@emotion/react';
+import {css} from '@emotion/react';
 
 export const Main = styled.main`
   padding: 0 40px;
@@ -55,5 +55,23 @@ export const Title = styled.h1`
 
   @media (max-width: 780px) {
     padding: 24px 0 0 24px;
+  }
+`;
+
+export const WarnBanner = styled.div`
+  padding: 10px;
+  background-color: red;
+  color: white;
+  font-size: 20px;
+  justify-content: center;
+  display: flex;
+  position: sticky;
+  width: 100%;
+  top: 0;
+  z-index:1;z-index:1;
+  
+  @media (max-width: 780px) {
+    padding: 5px;
+    font-size: 15px;
   }
 `;
