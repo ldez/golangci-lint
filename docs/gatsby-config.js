@@ -1,12 +1,13 @@
 const withDefault = require(`./src/@rocketseat/gatsby-theme-docs-core/util/with-default`);
 
-const domain = `golangci-lint.run`;
-const siteUrl = `https://${domain}`;
+const domain = `golangci.github.io`;
+const siteUrl = `https://${domain}/legacy-v1-doc`;
 
 const siteConfig = require(`./src/config/site.js`);
 const { basePath, configPath, docsPath } = withDefault(siteConfig);
 
 module.exports = {
+  pathPrefix: `/legacy-v1-doc`,
   siteMetadata: {
     siteTitle: `golangci-lint`,
     defaultTitle: ``,

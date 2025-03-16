@@ -51,7 +51,8 @@
     "gatsby-plugin-netlify": "^5.1.0"
   },
   "scripts": {
-    "build": "make -C .. website_expand_templates website_copy_jsonschema && gatsby build",
+    "build": "gatsby build --prefix-paths",
+    "build-bck": "make -C .. website_expand_templates website_copy_jsonschema && gatsby build --prefix-paths",
     "start": "gatsby develop",
     "serve": "gatsby serve",
     "clean": "gatsby clean"

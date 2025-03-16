@@ -35,23 +35,23 @@
 - label: Contributing
   items:
     - label: Quick Start
-      link: /contributing/quick-start/
+      link: "/contributing/quick-start/"
     - label: Workflow
-      link: /contributing/workflow/
+      link: "/contributing/workflow/"
     - label: Architecture
-      link: /contributing/architecture/
+      link: "/contributing/architecture/"
     - label: New Linters
-      link: /contributing/new-linters/
+      link: "/contributing/new-linters/"
     - label: "Debug"
       link: "/contributing/debug/"
     - label: FAQ
-      link: /contributing/faq/
+      link: "/contributing/faq/"
     - label: This Website
-      link: /contributing/website/
+      link: "/contributing/website/"
 - label: Plugins
   items:
     - label: Module Plugin System
-      link: /plugins/module-plugins/
+      link: "/plugins/module-plugins/"
     - label: Go Plugin System
-      link: /plugins/go-plugins/
+      link: "/plugins/go-plugins/"
 
