@@ -43,13 +43,13 @@ Here is the other way to install golangci-lint:
 
 ```sh
 # binary will be $(go env GOPATH)/bin/golangci-lint
-curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin {.LatestVersion}
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.8
 
 # or install it into ./bin/
-curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s {.LatestVersion}
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s v1.64.8
 
 # In Alpine Linux (as it does not come with curl by default)
-wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s {.LatestVersion}
+wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s v1.64.8
 
 golangci-lint --version
 ```
@@ -65,7 +65,7 @@ and is constantly being improved. For any problems with `golangci-lint`, check o
 
 ```sh
 # binary will be $(go env GOPATH)/bin/golangci-lint
-curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin {.LatestVersion}
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.8
 
 golangci-lint --version
 ```
@@ -131,17 +131,17 @@ The scoop package is not officially maintained by golangci team.
 ### Docker
 
 ```sh
-docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:{.LatestVersion} golangci-lint run -v
+docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v1.64.8 golangci-lint run -v
 ```
 
 Preserving cache between consecutive runs:
 ```sh
-docker run --rm -v $(pwd):/app -v ~/.cache/golangci-lint/{.LatestVersion}:/root/.cache -w /app golangci/golangci-lint:{.LatestVersion} golangci-lint run -v
+docker run --rm -v $(pwd):/app -v ~/.cache/golangci-lint/v1.64.8:/root/.cache -w /app golangci/golangci-lint:v1.64.8 golangci-lint run -v
 ```
 
 Colored output:
 ```sh
-docker run -t --rm -v $(pwd):/app -w /app golangci/golangci-lint:{.LatestVersion} golangci-lint run -v
+docker run -t --rm -v $(pwd):/app -w /app golangci/golangci-lint:v1.64.8 golangci-lint run -v
 ```
 
 ### Install from Sources
@@ -161,7 +161,7 @@ These installations aren't recommended because of the following points:
 7. It's slower than binary installation.
 
 ```sh
-go install github.com/golangci/golangci-lint/cmd/golangci-lint@{.LatestVersion}
+go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8
 ```
 
 ## Next

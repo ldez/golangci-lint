@@ -174,7 +174,97 @@ Use `//nolint` instead of `// nolint` because machine-readable comments should h
 Some exclusions are considered as common, to help golangci-lint users those common exclusions are used as default exclusions.
 
 If you don't want to use it you can set `issues.exclude-use-default` to `false`.
-{.DefaultExclusions}
+
+### EXC0001
+
+- linter: `errcheck`
+- pattern: `Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*print(f|ln)?|os\.(Un)?Setenv). is not checked`
+- why: Almost all programs ignore errors on these functions and in most cases it's ok.
+
+### EXC0002
+
+- linter: `golint`
+- pattern: `(comment on exported (method|function|type|const)|should have( a package)? comment|comment should be of the form)`
+- why: Annoying issue about not having a comment. The rare codebase has such comments.
+
+### EXC0003
+
+- linter: `golint`
+- pattern: `func name will be used as test\.Test.* by other packages, and that stutters; consider calling this`
+- why: False positive when tests are defined in package 'test'.
+
+### EXC0004
+
+- linter: `govet`
+- pattern: `(possible misuse of unsafe.Pointer|should have signature)`
+- why: Common false positives.
+
+### EXC0005
+
+- linter: `staticcheck`
+- pattern: `SA4011`
+- why: Developers tend to write in C-style with an explicit 'break' in a 'switch', so it's ok to ignore.
+
+### EXC0006
+
+- linter: `gosec`
+- pattern: `G103: Use of unsafe calls should be audited`
+- why: Too many false-positives on 'unsafe' usage.
+
+### EXC0007
+
+- linter: `gosec`
+- pattern: `G204: Subprocess launched with variable`
+- why: Too many false-positives for parametrized shell calls.
+
+### EXC0008
+
+- linter: `gosec`
+- pattern: `G104`
+- why: Duplicated errcheck checks.
+
+### EXC0009
+
+- linter: `gosec`
+- pattern: `(G301|G302|G307): Expect (directory permissions to be 0750|file permissions to be 0600) or less`
+- why: Too many issues in popular repos.
+
+### EXC0010
+
+- linter: `gosec`
+- pattern: `G304: Potential file inclusion via variable`
+- why: False positive is triggered by 'src, err := ioutil.ReadFile(filename)'.
+
+### EXC0011
+
+- linter: `stylecheck`
+- pattern: `(ST1000|ST1020|ST1021|ST1022)`
+- why: Annoying issue about not having a comment. The rare codebase has such comments.
+
+### EXC0012
+
+- linter: `revive`
+- pattern: `exported (.+) should have comment( \(or a comment on this block\))? or be unexported`
+- why: Annoying issue about not having a comment. The rare codebase has such comments.
+
+### EXC0013
+
+- linter: `revive`
+- pattern: `package comment should be of the form "(.+)..."`
+- why: Annoying issue about not having a comment. The rare codebase has such comments.
+
+### EXC0014
+
+- linter: `revive`
+- pattern: `comment on exported (.+) should be of the form "(.+)..."`
+- why: Annoying issue about not having a comment. The rare codebase has such comments.
+
+### EXC0015
+
+- linter: `revive`
+- pattern: `should have a package comment`
+- why: Annoying issue about not having a comment. The rare codebase has such comments.
+
 
 ### Default Directory Exclusions
 
