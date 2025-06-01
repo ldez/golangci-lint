@@ -184,7 +184,7 @@ var defaultLintersSettings = LintersSettings{
 		MaxDistance:   5,
 		MinNameLength: 3,
 	},
-	WSL: WSLSettings{
+	WSL: WSLv4Settings{
 		StrictAppend:                     true,
 		AllowAssignAndCallCuddle:         true,
 		AllowAssignAndAnythingCuddle:     false,
@@ -283,7 +283,8 @@ type LintersSettings struct {
 	Varnamelen               VarnamelenSettings               `mapstructure:"varnamelen"`
 	Whitespace               WhitespaceSettings               `mapstructure:"whitespace"`
 	Wrapcheck                WrapcheckSettings                `mapstructure:"wrapcheck"`
-	WSL                      WSLSettings                      `mapstructure:"wsl"`
+	WSL                      WSLv4Settings                    `mapstructure:"wsl"` // Deprecated
+	WSLv5                    WSLv5Settings                    `mapstructure:"wsl_v5"`
 
 	Custom map[string]CustomLinterSettings `mapstructure:"custom"`
 }
@@ -992,7 +993,8 @@ type WrapcheckSettings struct {
 	ReportInternalErrors   bool     `mapstructure:"report-internal-errors"`
 }
 
-type WSLSettings struct {
+// Deprecated
+type WSLv4Settings struct {
 	StrictAppend                     bool     `mapstructure:"strict-append"`
 	AllowAssignAndCallCuddle         bool     `mapstructure:"allow-assign-and-call"`
 	AllowAssignAndAnythingCuddle     bool     `mapstructure:"allow-assign-and-anything"`
@@ -1007,6 +1009,17 @@ type WSLSettings struct {
 	ForceCuddleErrCheckAndAssign     bool     `mapstructure:"force-err-cuddling"`
 	ErrorVariableNames               []string `mapstructure:"error-variable-names"`
 	ForceExclusiveShortDeclarations  bool     `mapstructure:"force-short-decl-cuddling"`
+}
+
+type WSLv5Settings struct {
+	IncludeGenerated  bool     `mapstructure:"include-generated"`
+	AllowFirstInBlock bool     `mapstructure:"allow-first-in-block"`
+	AllowWholeBlock   bool     `mapstructure:"allow-whole-block"`
+	BranchMaxLines    int      `mapstructure:"branch-max-lines"`
+	CaseMaxLines      int      `mapstructure:"case-max-lines"`
+	Default           string   `mapstructure:"default"`
+	Enable            []string `mapstructure:"enable"`
+	Disable           []string `mapstructure:"disable"`
 }
 
 // CustomLinterSettings encapsulates the meta-data of a private linter.
