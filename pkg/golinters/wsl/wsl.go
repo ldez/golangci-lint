@@ -41,10 +41,6 @@ func NewV4(settings *config.WSLv4Settings) *goanalysis.Linter {
 		WithLoadMode(goanalysis.LoadModeSyntax)
 }
 
-type fakeRoot struct {
-	Settings v5YAML `yaml:"wsl_v5"`
-}
-
 type v5YAML struct {
 	AllowFirstInBlock bool     `yaml:"allow-first-in-block,omitempty"`
 	AllowWholeBlock   bool     `yaml:"allow-whole-block,omitempty"`
@@ -55,19 +51,19 @@ type v5YAML struct {
 }
 
 func Migration(old *config.WSLv4Settings) string {
-	cfg := fakeRoot{Settings: v5YAML{
+	cfg := v5YAML{
 		AllowFirstInBlock: true,
 		AllowWholeBlock:   false,
 		BranchMaxLines:    2,
 		CaseMaxLines:      old.ForceCaseTrailingWhitespaceLimit,
-	}}
+	}
 
 	if !old.StrictAppend {
-		cfg.Settings.Disable = append(cfg.Settings.Disable, wslv5.CheckAppend.String())
+		cfg.Disable = append(cfg.Disable, wslv5.CheckAppend.String())
 	}
 
 	if old.AllowAssignAndAnythingCuddle {
-		cfg.Settings.Disable = append(cfg.Settings.Disable, wslv5.CheckAssign.String())
+		cfg.Disable = append(cfg.Disable, wslv5.CheckAssign.String())
 	}
 
 	if old.AllowMultiLineAssignCuddle {
@@ -83,29 +79,40 @@ func Migration(old *config.WSLv4Settings) string {
 	}
 
 	if old.AllowCuddleDeclaration {
-		cfg.Settings.Disable = append(cfg.Settings.Disable, wslv5.CheckDecl.String())
+		cfg.Disable = append(cfg.Disable, wslv5.CheckDecl.String())
 	}
 
 	if old.ForceCuddleErrCheckAndAssign {
-		cfg.Settings.Enable = append(cfg.Settings.Enable, wslv5.CheckErr.String())
+		cfg.Enable = append(cfg.Enable, wslv5.CheckErr.String())
 	}
 
 	if old.ForceExclusiveShortDeclarations {
-		cfg.Settings.Enable = append(cfg.Settings.Enable, wslv5.CheckAssignExclusive.String())
+		cfg.Enable = append(cfg.Enable, wslv5.CheckAssignExclusive.String())
 	}
 
 	if !old.AllowAssignAndCallCuddle {
-		cfg.Settings.Enable = append(cfg.Settings.Enable, wslv5.CheckAssignExpr.String())
+		cfg.Enable = append(cfg.Enable, wslv5.CheckAssignExpr.String())
 	}
 
-	slices.Sort(cfg.Settings.Enable)
-	slices.Sort(cfg.Settings.Disable)
+	slices.Sort(cfg.Enable)
+	slices.Sort(cfg.Disable)
 
 	buf := bytes.NewBuffer([]byte{})
 	encoder := yaml.NewEncoder(buf)
 	encoder.SetIndent(2)
 
-	err := encoder.Encode(cfg)
+	d := map[string]any{
+		"linters": map[string]any{
+			"enable": []string{
+				"wsl_v5",
+			},
+			"settings": map[string]v5YAML{
+				"wsl_v5": cfg,
+			},
+		},
+	}
+
+	err := encoder.Encode(d)
 	if err != nil {
 		internal.LinterLogger.Fatalf("wsl: invalid config: %v", err)
 	}
