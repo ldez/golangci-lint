@@ -430,6 +430,10 @@ func (c *runCommand) printDeprecatedLinterMessages(enabledLinters map[string]*li
 		}
 
 		c.log.Warnf("The linter '%s' is deprecated (since %s) due to: %s %s", name, lc.Deprecation.Since, lc.Deprecation.Message, extra)
+
+		if lc.Deprecation.ConfigSuggestion != nil {
+			c.log.Warnf("Suggested new configuration:\n%s", lc.Deprecation.ConfigSuggestion())
+		}
 	}
 }
 

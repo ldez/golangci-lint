@@ -692,7 +692,9 @@ func (LinterBuilder) Build(cfg *config.Config) ([]*linter.Config, error) {
 			WithURL("https://github.com/tomarrell/wrapcheck"),
 
 		linter.NewConfig(wsl.NewV4(&cfg.Linters.Settings.WSL)).
-			DeprecatedWarning("new major version", "v2.2.0", "wsl_v5"). // TODO(ldez) improves suggestion.
+			DeprecatedWarningWithMigration("new major version", "v2.2.0", "wsl_v5", func() string {
+				return wsl.Migration(&cfg.Linters.Settings.WSL)
+			}). // TODO(ldez) improves suggestion.
 			WithSince("v1.20.0").
 			WithAutoFix().
 			WithURL("https://github.com/bombsimon/wsl"),

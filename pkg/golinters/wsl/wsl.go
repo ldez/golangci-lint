@@ -3,14 +3,12 @@ package wsl
 import (
 	"bytes"
 	"slices"
-	"sync"
 
 	wslv4 "github.com/bombsimon/wsl/v4"
 	wslv5 "github.com/bombsimon/wsl/v5"
 	"github.com/golangci/golangci-lint/v2/pkg/config"
 	"github.com/golangci/golangci-lint/v2/pkg/goanalysis"
 	"github.com/golangci/golangci-lint/v2/pkg/golinters/internal"
-	"golang.org/x/tools/go/analysis"
 	"gopkg.in/yaml.v3"
 )
 
@@ -39,9 +37,7 @@ func NewV4(settings *config.WSLv4Settings) *goanalysis.Linter {
 	}
 
 	return goanalysis.
-		NewLinterFromAnalyzer(migratedAnalyzer(wslv4.NewAnalyzer(conf), func() {
-			internal.LinterLogger.Warnf("Suggested new configuration: \n%s", migration(settings))
-		})).
+		NewLinterFromAnalyzer(wslv4.NewAnalyzer(conf)).
 		WithLoadMode(goanalysis.LoadModeSyntax)
 }
 
@@ -58,7 +54,7 @@ type v5YAML struct {
 	Disable           []string `yaml:"disable,omitempty"`
 }
 
-func migration(old *config.WSLv4Settings) string {
+func Migration(old *config.WSLv4Settings) string {
 	cfg := fakeRoot{Settings: v5YAML{
 		AllowFirstInBlock: true,
 		AllowWholeBlock:   false,
@@ -115,25 +111,4 @@ func migration(old *config.WSLv4Settings) string {
 	}
 
 	return buf.String()
-}
-
-// NOTE(ldez): this can be moved and reuse in the future, for now we only need it for this linter.
-func migratedAnalyzer(a *analysis.Analyzer, preRun func()) *analysis.Analyzer {
-	once := sync.OnceFunc(preRun)
-
-	return &analysis.Analyzer{
-		Name:  a.Name,
-		Doc:   a.Doc,
-		URL:   a.URL,
-		Flags: a.Flags,
-		Run: func(pass *analysis.Pass) (any, error) {
-			once()
-
-			return a.Run(pass)
-		},
-		RunDespiteErrors: a.RunDespiteErrors,
-		Requires:         a.Requires,
-		ResultType:       a.ResultType,
-		FactTypes:        a.FactTypes,
-	}
 }

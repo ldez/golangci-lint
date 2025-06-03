@@ -20,10 +20,11 @@ const (
 )
 
 type Deprecation struct {
-	Since       string
-	Message     string
-	Replacement string
-	Level       DeprecationLevel
+	Since            string
+	Message          string
+	Replacement      string
+	Level            DeprecationLevel
+	ConfigSuggestion func() string
 }
 
 type Config struct {
@@ -119,22 +120,27 @@ func (lc *Config) WithSince(version string) *Config {
 	return lc
 }
 
-func (lc *Config) Deprecated(message, version, replacement string, level DeprecationLevel) *Config {
+func (lc *Config) Deprecated(message, version, replacement string, level DeprecationLevel, mgr func() string) *Config {
 	lc.Deprecation = &Deprecation{
-		Since:       version,
-		Message:     message,
-		Replacement: replacement,
-		Level:       level,
+		Since:            version,
+		Message:          message,
+		Replacement:      replacement,
+		Level:            level,
+		ConfigSuggestion: mgr,
 	}
 	return lc
 }
 
 func (lc *Config) DeprecatedWarning(message, version, replacement string) *Config {
-	return lc.Deprecated(message, version, replacement, DeprecationWarning)
+	return lc.Deprecated(message, version, replacement, DeprecationWarning, nil)
+}
+
+func (lc *Config) DeprecatedWarningWithMigration(message, version, replacement string, mgr func() string) *Config {
+	return lc.Deprecated(message, version, replacement, DeprecationWarning, mgr)
 }
 
 func (lc *Config) DeprecatedError(message, version, replacement string) *Config {
-	return lc.Deprecated(message, version, replacement, DeprecationError)
+	return lc.Deprecated(message, version, replacement, DeprecationError, nil)
 }
 
 func (lc *Config) IsDeprecated() bool {
