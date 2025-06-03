@@ -283,7 +283,7 @@ type LintersSettings struct {
 	Varnamelen               VarnamelenSettings               `mapstructure:"varnamelen"`
 	Whitespace               WhitespaceSettings               `mapstructure:"whitespace"`
 	Wrapcheck                WrapcheckSettings                `mapstructure:"wrapcheck"`
-	WSL                      WSLv4Settings                    `mapstructure:"wsl"` // Deprecated
+	WSL                      WSLv4Settings                    `mapstructure:"wsl"` // Deprecated: use WSLv5 instead.
 	WSLv5                    WSLv5Settings                    `mapstructure:"wsl_v5"`
 
 	Custom map[string]CustomLinterSettings `mapstructure:"custom"`
@@ -993,7 +993,7 @@ type WrapcheckSettings struct {
 	ReportInternalErrors   bool     `mapstructure:"report-internal-errors"`
 }
 
-// Deprecated
+// Deprecated: use WSLv5Settings instead.
 type WSLv4Settings struct {
 	StrictAppend                     bool     `mapstructure:"strict-append"`
 	AllowAssignAndCallCuddle         bool     `mapstructure:"allow-assign-and-call"`

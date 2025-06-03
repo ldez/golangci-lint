@@ -12,7 +12,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Deprecated
+// Deprecated: use NewV5 instead.
 func NewV4(settings *config.WSLv4Settings) *goanalysis.Linter {
 	var conf *wslv4.Configuration
 
