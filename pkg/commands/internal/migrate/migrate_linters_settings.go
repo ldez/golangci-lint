@@ -4,6 +4,7 @@ import (
 	"slices"
 	"strings"
 
+	wslv5 "github.com/bombsimon/wsl/v5"
 	"github.com/golangci/golangci-lint/v2/pkg/commands/internal/migrate/ptr"
 	"github.com/golangci/golangci-lint/v2/pkg/commands/internal/migrate/versionone"
 	"github.com/golangci/golangci-lint/v2/pkg/commands/internal/migrate/versiontwo"
@@ -87,7 +88,7 @@ func toLinterSettings(old versionone.LintersSettings) versiontwo.LintersSettings
 		Varnamelen:      toVarnamelenSettings(old.Varnamelen),
 		Whitespace:      toWhitespaceSettings(old.Whitespace),
 		Wrapcheck:       toWrapcheckSettings(old.Wrapcheck),
-		WSL:             toWSLSettings(old.WSL),
+		WSLv5:           toWSLSettings(old.WSL),
 		Custom:          toCustom(old.Custom),
 	}
 }
@@ -100,7 +101,7 @@ func toAsasalintSettings(old versionone.AsasalintSettings) versiontwo.AsasalintS
 }
 
 func toBiDiChkSettings(old versionone.BiDiChkSettings) versiontwo.BiDiChkSettings {
-	// The values are true be default, but the default are defined after the configuration loading.
+	// The values are true be default, but the defaults are defined after the configuration loading.
 	// So the serialization doesn't have good results, but it's complex to do better.
 	return versiontwo.BiDiChkSettings{
 		LeftToRightEmbedding:     old.LeftToRightEmbedding,
@@ -998,22 +999,42 @@ func toWrapcheckSettings(old versionone.WrapcheckSettings) versiontwo.WrapcheckS
 	}
 }
 
-func toWSLSettings(old versionone.WSLSettings) versiontwo.WSLSettings {
-	return versiontwo.WSLSettings{
-		StrictAppend:                     old.StrictAppend,
-		AllowAssignAndCallCuddle:         old.AllowAssignAndCallCuddle,
-		AllowAssignAndAnythingCuddle:     old.AllowAssignAndAnythingCuddle,
-		AllowMultiLineAssignCuddle:       old.AllowMultiLineAssignCuddle,
-		ForceCaseTrailingWhitespaceLimit: old.ForceCaseTrailingWhitespaceLimit,
-		AllowTrailingComment:             old.AllowTrailingComment,
-		AllowSeparatedLeadingComment:     old.AllowSeparatedLeadingComment,
-		AllowCuddleDeclaration:           old.AllowCuddleDeclaration,
-		AllowCuddleWithCalls:             old.AllowCuddleWithCalls,
-		AllowCuddleWithRHS:               old.AllowCuddleWithRHS,
-		ForceCuddleErrCheckAndAssign:     old.ForceCuddleErrCheckAndAssign,
-		ErrorVariableNames:               old.ErrorVariableNames,
-		ForceExclusiveShortDeclarations:  old.ForceExclusiveShortDeclarations,
+func toWSLSettings(old versionone.WSLSettings) versiontwo.WSLv5Settings {
+	cfg := versiontwo.WSLv5Settings{
+		AllowFirstInBlock: ptr.Pointer(true),
+		AllowWholeBlock:   ptr.Pointer(false),
+		BranchMaxLines:    ptr.Pointer(2),
+		CaseMaxLines:      old.ForceCaseTrailingWhitespaceLimit,
 	}
+
+	if !ptr.Deref(old.StrictAppend) {
+		cfg.Disable = append(cfg.Disable, wslv5.CheckAppend.String())
+	}
+
+	if ptr.Deref(old.AllowAssignAndAnythingCuddle) {
+		cfg.Disable = append(cfg.Disable, wslv5.CheckAssign.String())
+	}
+
+	if ptr.Deref(old.AllowCuddleDeclaration) {
+		cfg.Disable = append(cfg.Disable, wslv5.CheckDecl.String())
+	}
+
+	if ptr.Deref(old.ForceCuddleErrCheckAndAssign) {
+		cfg.Enable = append(cfg.Enable, wslv5.CheckErr.String())
+	}
+
+	if ptr.Deref(old.ForceExclusiveShortDeclarations) {
+		cfg.Enable = append(cfg.Enable, wslv5.CheckAssignExclusive.String())
+	}
+
+	if !ptr.Deref(old.AllowAssignAndCallCuddle) {
+		cfg.Enable = append(cfg.Enable, wslv5.CheckAssignExpr.String())
+	}
+
+	slices.Sort(cfg.Enable)
+	slices.Sort(cfg.Disable)
+
+	return cfg
 }
 
 func toCustom(old map[string]versionone.CustomLinterSettings) map[string]versiontwo.CustomLinterSettings {
