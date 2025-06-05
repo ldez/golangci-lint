@@ -1,9 +1,11 @@
 package linter
 
 import (
+	"bytes"
 	"fmt"
 
 	"golang.org/x/tools/go/packages"
+	"gopkg.in/yaml.v3"
 
 	"github.com/golangci/golangci-lint/v2/pkg/config"
 )
@@ -24,7 +26,7 @@ type Deprecation struct {
 	Message          string
 	Replacement      string
 	Level            DeprecationLevel
-	ConfigSuggestion func() string
+	ConfigSuggestion func() (string, error)
 }
 
 type Config struct {
@@ -120,27 +122,66 @@ func (lc *Config) WithSince(version string) *Config {
 	return lc
 }
 
-func (lc *Config) Deprecated(message, version, replacement string, level DeprecationLevel, mgr func() string) *Config {
+func (lc *Config) Deprecated(message, version string, level DeprecationLevel, opts ...func(*Deprecation)) *Config {
 	lc.Deprecation = &Deprecation{
-		Since:            version,
-		Message:          message,
-		Replacement:      replacement,
-		Level:            level,
-		ConfigSuggestion: mgr,
+		Since:   version,
+		Message: message,
+		Level:   level,
 	}
+
+	for _, opt := range opts {
+		opt(lc.Deprecation)
+	}
+
 	return lc
 }
 
-func (lc *Config) DeprecatedWarning(message, version, replacement string) *Config {
-	return lc.Deprecated(message, version, replacement, DeprecationWarning, nil)
+func (lc *Config) DeprecatedWarning(message, version string, opts ...func(*Deprecation)) *Config {
+	return lc.Deprecated(message, version, DeprecationWarning, opts...)
 }
 
-func (lc *Config) DeprecatedWarningWithMigration(message, version, replacement string, mgr func() string) *Config {
-	return lc.Deprecated(message, version, replacement, DeprecationWarning, mgr)
+func (lc *Config) DeprecatedError(message, version string, opts ...func(*Deprecation)) *Config {
+	return lc.Deprecated(message, version, DeprecationError, opts...)
 }
 
-func (lc *Config) DeprecatedError(message, version, replacement string) *Config {
-	return lc.Deprecated(message, version, replacement, DeprecationError, nil)
+// FIXME(ldez) move
+func Replacement[T any](replacement string, mgr func(T) any, data T) func(*Deprecation) {
+	return func(d *Deprecation) {
+		if replacement == "" {
+			return
+		}
+
+		d.Replacement = replacement
+
+		if mgr == nil {
+			return
+		}
+
+		d.ConfigSuggestion = func() (string, error) {
+			buf := bytes.NewBuffer([]byte{})
+
+			encoder := yaml.NewEncoder(buf)
+			encoder.SetIndent(2)
+
+			suggestion := map[string]any{
+				"linters": map[string]any{
+					"enable": []string{
+						d.Replacement,
+					},
+					"settings": map[string]any{
+						d.Replacement: mgr(data),
+					},
+				},
+			}
+
+			err := encoder.Encode(suggestion)
+			if err != nil {
+				return "", fmt.Errorf("%s: invalid configuration: %w", d.Replacement, err)
+			}
+
+			return buf.String(), nil
+		}
+	}
 }
 
 func (lc *Config) IsDeprecated() bool {

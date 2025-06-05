@@ -1,7 +1,6 @@
 package wsl
 
 import (
-	"bytes"
 	"slices"
 
 	wslv4 "github.com/bombsimon/wsl/v4"
@@ -9,7 +8,6 @@ import (
 	"github.com/golangci/golangci-lint/v2/pkg/config"
 	"github.com/golangci/golangci-lint/v2/pkg/goanalysis"
 	"github.com/golangci/golangci-lint/v2/pkg/golinters/internal"
-	"gopkg.in/yaml.v3"
 )
 
 // Deprecated: use NewV5 instead.
@@ -41,16 +39,21 @@ func NewV4(settings *config.WSLv4Settings) *goanalysis.Linter {
 		WithLoadMode(goanalysis.LoadModeSyntax)
 }
 
+// Only used the set YAML struct tags.
 type v5YAML struct {
-	AllowFirstInBlock bool     `yaml:"allow-first-in-block,omitempty"`
-	AllowWholeBlock   bool     `yaml:"allow-whole-block,omitempty"`
+	AllowFirstInBlock bool     `yaml:"allow-first-in-block"`
+	AllowWholeBlock   bool     `yaml:"allow-whole-block"`
 	BranchMaxLines    int      `yaml:"branch-max-lines,omitempty"`
 	CaseMaxLines      int      `yaml:"case-max-lines,omitempty"`
 	Enable            []string `yaml:"enable,omitempty"`
 	Disable           []string `yaml:"disable,omitempty"`
 }
 
-func Migration(old *config.WSLv4Settings) string {
+func Migration(old *config.WSLv4Settings) any {
+	if old == nil {
+		return nil
+	}
+
 	cfg := v5YAML{
 		AllowFirstInBlock: true,
 		AllowWholeBlock:   false,
@@ -97,25 +100,5 @@ func Migration(old *config.WSLv4Settings) string {
 	slices.Sort(cfg.Enable)
 	slices.Sort(cfg.Disable)
 
-	buf := bytes.NewBuffer([]byte{})
-	encoder := yaml.NewEncoder(buf)
-	encoder.SetIndent(2)
-
-	d := map[string]any{
-		"linters": map[string]any{
-			"enable": []string{
-				"wsl_v5",
-			},
-			"settings": map[string]v5YAML{
-				"wsl_v5": cfg,
-			},
-		},
-	}
-
-	err := encoder.Encode(d)
-	if err != nil {
-		internal.LinterLogger.Fatalf("wsl: invalid config: %v", err)
-	}
-
-	return buf.String()
+	return cfg
 }
