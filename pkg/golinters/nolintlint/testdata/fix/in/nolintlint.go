@@ -13,3 +13,7 @@ func nolintlint() {
 
 	fmt.Println() //nolint:alice,lll // we don't drop individual linters from lists
 }
+
+// DocFunc does nothing.
+//nolint:lll // nolint should be dropped
+func DocFunc() {}

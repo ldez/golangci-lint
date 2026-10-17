@@ -160,15 +160,26 @@ func (l Linter) Run(pass *analysis.Pass) ([]*goanalysis.Issue, error) {
 					}
 				}
 
-				// when detecting unused directives, we send all the directives through and filter them out in the nolint processor
-				if (l.needs & NeedsUnused) != 0 {
-					removeNolintCompletely := []analysis.SuggestedFix{{
-						TextEdits: []analysis.TextEdit{{
-							Pos:     token.Pos(pos.Offset),
-							End:     token.Pos(end.Offset),
-							NewText: nil,
-						}},
-					}}
+			// when detecting unused directives, we send all the directives through and filter them out in the nolint processor
+			if (l.needs & NeedsUnused) != 0 {
+				// If the comment is on its own line (standalone, not inline after code),
+				// extend End to include the trailing newline so that removing the comment
+				// doesn't leave a blank line that would separate a doc comment from its
+				// target declaration (see issue #6459).
+				removeEnd := end.Offset
+				// If the comment starts at column 1 of its line, it's a standalone line comment.
+				// In that case, including the trailing \n in the deletion range removes the
+				// entire line rather than leaving an empty line behind.
+				if pos.Column == 1 {
+					removeEnd = end.Offset + 1
+				}
+				removeNolintCompletely := []analysis.SuggestedFix{{
+					TextEdits: []analysis.TextEdit{{
+						Pos:     token.Pos(pos.Offset),
+						End:     token.Pos(removeEnd),
+						NewText: nil,
+					}},
+				}}
 
 					if len(linters) == 0 {
 						issue := &result.Issue{
